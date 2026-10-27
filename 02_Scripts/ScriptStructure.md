@@ -183,7 +183,7 @@ flowchart TD
         AABB --> AABBC{"x, y 범위가<br/>모두 겹치는가?"}
         AABBC -->|아니오| F1["return false<br/>(충돌 가능성 없음)"]
         AABBC -->|예| SATO["HasSeparatingAxis()<br/>(true면 충돌 아님)"]
-        SATO --> AX["GetAxes()<br/>두 다각형의 모든 변 법선 = 후보 축"]
+        SATO --> AX["HasSeparatingEdgeNormal()<br/>두 다각형의 모든 변 법선 = 후보 축"]
         AX --> PR["Project()<br/>각 축에 두 다각형의 꼭짓점을 투영 → (min, max)"]
         PR --> SEP{"어떤 축에서<br/>투영 범위가 분리되는가?"}
         SEP -->|"예 (분리축 발견)"| F2["return false"]
@@ -227,7 +227,7 @@ flowchart TD
 | `Intersects()` | 유일한 public 진입점. `IsAabbOverlapping && !HasSeparatingAxis` |
 | `IsAabbOverlapping()`, `CalculateAabb()` | 감싸는 사각형 계산 및 겹침 검사 |
 | `HasSeparatingAxis()`, `Project()` | 각 축에 투영 → 분리축 탐색 |
-| `GetAxes()`, `AddEdgeNormals()` | 후보 축 목록 생성 (두 도형의 모든 변 법선) |
+| `HasSeparatingEdgeNormal()` | 한 도형의 변 법선을 하나씩 축으로 삼아 바로 투영 → 두 도형 사이에 틈이 보이는 축(분리축)이 있으면 `true` (축 목록을 따로 만들지 않음) |
 | `AxisAlignedBoundingBox` (struct) | `min`, `max` + `Overlaps()` — AABB 겹침 판정 |
 | `Projection` (struct) | 한 축에 투영된 `[min, max]` 범위 + `Overlaps()` |
 

@@ -1,6 +1,5 @@
 // PolygonCollision.cs
 // 역할: 볼록 다각형 두 개의 충돌 여부를 AABB(가능성 검사) → SAT(정밀 검사) 순서로 판정하는 계산 클래스이다.
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -48,35 +47,25 @@ namespace CollisionDetection {
             Assert.IsNotNull(verticesA);
             Assert.IsNotNull(verticesB);
 
-            foreach (Vector2 axis in GetAxes(verticesA, verticesB)) {
+            return HasSeparatingEdgeNormal(verticesA, verticesA, verticesB)
+                || HasSeparatingEdgeNormal(verticesB, verticesA, verticesB);
+        }
+
+        private static bool HasSeparatingEdgeNormal(Vector2[] edgeSource, Vector2[] verticesA, Vector2[] verticesB) {
+            Assert.IsNotNull(edgeSource);
+            Assert.IsNotNull(verticesA);
+            Assert.IsNotNull(verticesB);
+
+            for (int i = 0; i < edgeSource.Length; i++) {
+                Vector2 edge = edgeSource[(i + 1) % edgeSource.Length] - edgeSource[i]; // 꼭짓점 i → i+1 변
+                Vector2 axis = new Vector2(-edge.y, edge.x).normalized;               // (x, y) → (-y, x) = 90° 회전
+
                 Projection projectionA = Project(verticesA, axis);
                 Projection projectionB = Project(verticesB, axis);
                 if (!projectionA.Overlaps(projectionB)) return true;
             }
 
             return false;
-        }
-
-        // 검사할 후보 축 목록(두 도형의 모든 변 법선)
-        private static List<Vector2> GetAxes(Vector2[] verticesA, Vector2[] verticesB) {
-            Assert.IsNotNull(verticesA);
-            Assert.IsNotNull(verticesB);
-
-            var axes = new List<Vector2>(verticesA.Length + verticesB.Length);
-            AddEdgeNormals(verticesA, axes);
-            AddEdgeNormals(verticesB, axes);
-            return axes;
-        }
-
-        private static void AddEdgeNormals(Vector2[] vertices, List<Vector2> axes) {
-            Assert.IsNotNull(vertices);
-            Assert.IsNotNull(axes);
-
-            for (int i = 0; i < vertices.Length; i++) {
-                Vector2 edge = vertices[(i + 1) % vertices.Length] - vertices[i]; // 꼭짓점 i → i+1 변
-                Vector2 normal = new Vector2(-edge.y, edge.x).normalized;         // (x, y) → (-y, x) = 90° 회전
-                axes.Add(normal);
-            }
         }
 
         private static Projection Project(Vector2[] vertices, Vector2 axis) {
